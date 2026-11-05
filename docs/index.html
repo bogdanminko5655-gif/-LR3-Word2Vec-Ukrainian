@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="description" content="Лабораторна робота №3 — українські Word2Vec-вектори, аналогії та PCA" />
+<title>Word2Vec UA — Лабораторна №3</title>
+<style>
+:root{color-scheme:dark;--bg:#08111e;--surface:#111e30;--line:#26364c;--ink:#edf4fd;--muted:#9ab0c7;--cyan:#6ee7ef;--purple:#ab9dff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 20% 0%,#182d4d 0%,var(--bg) 42%);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+.container{max-width:1140px;margin:0 auto;padding:30px 24px 72px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding:12px 0 27px}.brand{font-weight:800;letter-spacing:.07em}.brand b{color:var(--cyan)}.eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:.14em;font-weight:700;font-size:12px;margin:0 0 12px}
+h1{font-size:clamp(35px,5vw,69px);line-height:1.08;max-width:850px;margin:62px 0 20px;letter-spacing:-.05em}h1 em{font-style:normal;color:var(--cyan)}h2{font-size:clamp(22px,3vw,30px);margin:0 0 10px}.lead{max-width:790px;color:var(--muted);font-size:18px;margin-bottom:32px}.tags{display:flex;gap:8px;flex-wrap:wrap}.tag{border:1px solid var(--line);border-radius:40px;padding:5px 12px;color:var(--muted);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:44px 0}.stat{padding:25px;background:var(--surface);border:1px solid var(--line);border-radius:17px}.stat span{display:block;color:var(--muted);font-size:13px}.stat strong{font-size:clamp(24px,3vw,37px);letter-spacing:-.045em;color:var(--cyan)}
+.section{margin:38px 0;padding:28px;background:rgba(17,30,48,.72);border:1px solid var(--line);border-radius:18px}.small{color:var(--muted);font-size:14px;margin-top:0}.chartbox{min-height:310px;overflow-x:auto}.chartbox svg{width:100%;min-width:520px;height:455px}.point{fill:var(--cyan);stroke:#08111e;stroke-width:2}.label{fill:var(--ink);font-size:11px}.axis{stroke:#54708c;stroke-width:1}.grid{stroke:#26364c;stroke-width:1}.tablewrap{overflow:auto}table{border-collapse:collapse;min-width:650px;width:100%}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}code{color:var(--cyan)}.notice{padding:23px;border:1px dashed #486380;border-radius:14px;color:var(--muted)}.footer{color:var(--muted);margin-top:34px;font-size:13px}a{color:var(--cyan)}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.section{padding:18px}.container{padding:16px 16px 55px}} 
+</style>
+</head>
+<body><div class="container">
+<header class="top"><div class="brand">WORD<span style="color:#ab9dff">2</span>VEC <b>UA</b></div><div class="tag">Лабораторна робота №3</div></header>
+<main>
+<p class="eyebrow" style="margin-top:60px">Обробка природної мови • українська мова</p>
+<h1>Коли слова стають <em>векторами.</em></h1>
+<p class="lead">Косинусна подібність, арифметика семантичних аналогій та метод головних компонент. Візуалізація реальних результатів, отриманих програмою Python.</p>
+<div class="tags"><span class="tag">Word2Vec</span><span class="tag">300 вимірів</span><span class="tag">4271 тест</span><span class="tag">PCA 2D</span></div>
+<div id="status" style="margin-top:25px" role="status"></div>
+<div class="stats">
+<div class="stat"><span>Тестів</span><strong id="total">—</strong></div>
+<div class="stat"><span>Правильних</span><strong id="correct">—</strong></div>
+<div class="stat"><span>Accuracy (усі тести)</span><strong id="accuracy">—</strong></div>
+<div class="stat"><span>Coverage</span><strong id="coverage">—</strong></div>
+</div>
+<section class="section"><h2>Простір слів у двох вимірах</h2><p class="small">Розташування слів після PCA з 300 вимірів до двох. Це проєкція, а не географічна карта.</p><div class="chartbox" id="chart"><p class="notice">Тут з’явиться графік після запуску коду.</p></div></section>
+<section class="section"><h2>Семантичні аналогії</h2><p class="small">Цільовий вектор = країна₁ − столиця₁ + столиця₂. Найближче слово обирається з повного словника.</p><div class="tablewrap"><table><thead><tr><th>Столиця 1</th><th>Країна 1</th><th>Столиця 2</th><th>Результат</th><th>Cosine</th></tr></thead><tbody id="analogies"><tr><td colspan="5">Очікуємо результати обчислень.</td></tr></tbody></table></div></section>
+<section class="section"><h2>Як побудовано результат?</h2><p>Спочатку Word2Vec завантажує українські вектори слів. Після цього програма обчислює аналогії та перевіряє 4271 приклад. Для візуалізації вибрані вектори зменшуються до двох координат методом PCA.</p><p class="small">Джерела: <a href="https://github.com/lang-uk/vecs" target="_blank" rel="noopener">lang-uk/vecs</a>, <a href="https://huggingface.co/lang-uk/word2vec-uk" target="_blank" rel="noopener">lang-uk Word2Vec</a>.</p></section>
+</main><footer class="footer">Лабораторна №3 · Word2Vec · Gensim · NumPy · scikit-learn</footer></div>
+<script>
+const el=id=>document.getElementById(id);
+const svgNS='http://www.w3.org/2000/svg';
+function node(tag,attrs={},text=''){const n=document.createElementNS(svgNS,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));if(text)n.textContent=text;return n;}
+function draw(points){
+  const box=el('chart');box.replaceChildren();if(!points||points.length<3){box.textContent='Недостатньо даних для PCA.';return;}
+  const W=950,H=455,pad=63;const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+  const xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);
+  const dx=(xmax-xmin)||1,dy=(ymax-ymin)||1;
+  const x=v=>pad+(v-xmin)/dx*(W-2*pad);const y=v=>H-pad-(v-ymin)/dy*(H-2*pad);
+  const svg=node('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Двовимірна PCA-візуалізація слів'});
+  for(let i=0;i<=5;i++){
+    const px=pad+i*(W-2*pad)/5,py=pad+i*(H-2*pad)/5;
+    svg.append(node('line',{x1:px,y1:pad,x2:px,y2:H-pad,class:'grid'}));
+    svg.append(node('line',{x1:pad,y1:py,x2:W-pad,y2:py,class:'grid'}));
+  }
+  svg.append(node('line',{x1:pad,y1:H-pad,x2:W-pad,y2:H-pad,class:'axis'}));
+  svg.append(node('line',{x1:pad,y1:pad,x2:pad,y2:H-pad,class:'axis'}));
+  for(const p of points){const dot=node('circle',{cx:x(p.x),cy:y(p.y),r:6,class:'point'});dot.append(node('title',{},p.word));svg.append(dot);svg.append(node('text',{x:x(p.x)+10,y:y(p.y)-9,class:'label'},p.word));}
+  box.append(svg);
+}
+(async()=>{
+  try{
+    const response=await fetch('./results.json',{cache:'no-store'});
+    if(!response.ok)throw new Error('docs/results.json ще не створено');
+    const data=await response.json();const m=data.metrics;
+    el('total').textContent=m.total.toLocaleString('uk-UA');el('correct').textContent=m.correct.toLocaleString('uk-UA');
+    el('accuracy').textContent=(m.accuracy_all*100).toFixed(2)+'%';el('coverage').textContent=(m.coverage*100).toFixed(2)+'%';
+    draw(data.selected_points);
+    const body=el('analogies');body.replaceChildren();for(const a of data.examples){const row=document.createElement('tr');for(const key of ['city1','country1','city2','answer','similarity']){const td=document.createElement('td');td.textContent=a[key];row.append(td);}body.append(row);}
+    el('status').textContent='Результати завантажено з Python-обчислень.';
+  }catch(error){const p=document.createElement('div');p.className='notice';p.textContent='Реальні результати ще не додані. Запустіть lab3.py або LR3_Colab.ipynb, збережіть docs/results.json у репозиторії — тоді графік і метрики з’являться автоматично. Дані не підставляються штучно.';el('status').append(p);}
+})();
+</script></body></html>

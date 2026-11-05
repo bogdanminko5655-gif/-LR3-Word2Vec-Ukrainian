@@ -1,0 +1,11 @@
+{
+  "total": 4271,
+  "evaluated": 3935,
+  "correct": 587,
+  "accuracy_all": 0.13743853898384453,
+  "accuracy_covered": 0.14917407878017788,
+  "coverage": 0.9213298993210021,
+  "missing_input": 302,
+  "missing_target": 34,
+  "zero_query": 0
+}
